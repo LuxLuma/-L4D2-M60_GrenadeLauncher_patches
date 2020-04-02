@@ -25,7 +25,7 @@
 #pragma newdecls required
 
 #define GAMEDATA "M60_GrenadeLauncher_patches"
-#define PLUGIN_VERSION	"1.0.6"
+#define PLUGIN_VERSION	"1.0.7"
 
 
 Address M60_Drop = Address_Null;
@@ -109,7 +109,10 @@ public Action OnM60AllowPreserveClip(int client, int weapon)
 		return;
 	
 	g_bM60AddedClip[weapon] = false;
-	SetEntProp(weapon, Prop_Data, "m_iClip1", 0);
+	
+	int iClip = GetEntProp(weapon, Prop_Data, "m_iClip1");// just incase clip is set higher than 1 when on floor
+	if(iClip >= 1)
+		SetEntProp(weapon, Prop_Data, "m_iClip1", --iClip);
 }
 
 
