@@ -89,7 +89,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public void OnM60PreservePickup(int client, int weapon)
 {
-	if(!IsValidEntRef(g_iM60Ref[weapon]))
+	if(weapon < MaxClients+1 || !IsValidEntRef(g_iM60Ref[weapon]))
 		return;
 	
 	int iClip = GetEntProp(weapon, Prop_Data, "m_iClip1");
@@ -102,7 +102,7 @@ public void OnM60PreservePickup(int client, int weapon)
 
 public Action OnM60AllowPreserveClip(int client, int weapon)
 {
-	if(!IsValidEntRef(g_iM60Ref[weapon]))
+	if(weapon < MaxClients+1 || !IsValidEntRef(g_iM60Ref[weapon]))
 		return;
 	
 	if(!g_bM60AddedClip[weapon])
