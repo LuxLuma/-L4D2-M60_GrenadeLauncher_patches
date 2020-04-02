@@ -25,7 +25,7 @@
 #pragma newdecls required
 
 #define GAMEDATA "M60_GrenadeLauncher_patches"
-#define PLUGIN_VERSION	"1.0"
+#define PLUGIN_VERSION	"1.0.6"
 
 
 Address M60_Drop = Address_Null;
@@ -34,6 +34,8 @@ int M60_Drop_PatchRestoreBytes;
 Address Ammo_Use = Address_Null;
 int Ammo_Use_PatchRestoreBytes;
 
+bool g_bM60AddedClip[2048+1];
+int g_iM60Ref[2048+1];
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -65,6 +67,51 @@ public void OnPluginStart()
 	
 	delete hGamedata;
 }
+
+public void OnClientPutInServer(int client)
+{
+	SDKHook(client, SDKHook_WeaponCanUse, OnM60AllowPreserveClip);
+	SDKHook(client, SDKHook_WeaponDrop, OnM60PreservePickup);
+}
+
+public void OnEntityCreated(int entity, const char[] classname)
+{
+	if(entity < 1)
+		return;
+	
+	g_bM60AddedClip[entity] = false;
+	
+	if(classname[0] != 'w' || !StrEqual(classname, "weapon_rifle_m60", false))
+		return;
+	
+	g_iM60Ref[entity] = EntIndexToEntRef(entity);
+}
+
+public void OnM60PreservePickup(int client, int weapon)
+{
+	if(!IsValidEntRef(g_iM60Ref[weapon]))
+		return;
+	
+	int iClip = GetEntProp(weapon, Prop_Data, "m_iClip1");
+	if(iClip <= 0)
+	{
+		g_bM60AddedClip[weapon] = true;
+		SetEntProp(weapon, Prop_Data, "m_iClip1", 1);
+	}
+}
+
+public Action OnM60AllowPreserveClip(int client, int weapon)
+{
+	if(!IsValidEntRef(g_iM60Ref[weapon]))
+		return;
+	
+	if(!g_bM60AddedClip[weapon])
+		return;
+	
+	g_bM60AddedClip[weapon] = false;
+	SetEntProp(weapon, Prop_Data, "m_iClip1", 0);
+}
+
 
 void Patch_M60_Drop(Handle &hGamedata)
 {
@@ -157,4 +204,10 @@ public void OnPluginEnd()
 		StoreToAddress(Ammo_Use, Ammo_Use_PatchRestoreBytes, NumberType_Int8);
 		PrintToServer("M60_NoDrop_AmmoPile_patch:'CWeaponAmmoSpawn::Use_M60_Patch' restored");
 	}
+}
+
+
+static bool IsValidEntRef(int iEntRef)
+{
+	return (iEntRef != 0 && EntRefToEntIndex(iEntRef) != INVALID_ENT_REFERENCE);
 }
