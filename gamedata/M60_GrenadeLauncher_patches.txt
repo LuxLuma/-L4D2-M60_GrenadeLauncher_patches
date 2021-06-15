@@ -27,7 +27,7 @@
 			}
 			"CWeaponAmmoSpawn::Use_M60_Patch"
 			{
-				"linux"		"102"	//0x25
+				"linux"		"101"	//0x25
 				"windows"	"92"	//0x25
 			}
 		}
