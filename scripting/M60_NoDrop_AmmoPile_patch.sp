@@ -102,7 +102,7 @@ public void OnM60PreservePickup(int client, int weapon)
 	}
 }
 
-public Action OnM60AllowPreserveClip(int client, int weapon)
+public void OnM60AllowPreserveClip(int client, int weapon)
 {
 	if(weapon < MaxClients+1 || !IsValidEntRef(g_iM60Ref[weapon]))
 		return;
